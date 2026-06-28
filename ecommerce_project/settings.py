@@ -56,6 +56,8 @@ DefaultApp=[
 ]
 
 SupportingApp=[
+    'rest_framework',
+    'rest_framework_simplejwt',
 
 ]
 
@@ -90,7 +92,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "ecommerce_project.wsgi.application"
+# WSGI_APPLICATION = "ecommerce_project.wsgi.application"
+ASGI_APPLICATION = "ecommerce_project.asgi.application"
 
 
 # Database
@@ -139,12 +142,7 @@ elif DEBUG:
         }
     }
 
-    CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379/0")
-    CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
-    CELERY_ACCEPT_CONTENT = ['json']
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_TIMEZONE = 'Asia/Dhaka'
+    
     
 else :
     
@@ -161,7 +159,12 @@ else :
 
 
 
-
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Dhaka'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
