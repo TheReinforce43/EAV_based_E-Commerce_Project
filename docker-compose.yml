@@ -1,0 +1,76 @@
+services:
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${local_DB_NAME}
+      POSTGRES_USER: ${local_DB_USER}
+      POSTGRES_PASSWORD: ${local_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${local_DB_USER} -d ${local_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+
+  web:
+    build: .
+    command: sh -c "python manage.py migrate && python -m uvicorn ecommerce_project.asgi:application --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build: .
+    command: python -m celery -A ecommerce_project worker -l info -c 4
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build: .
+    command: python -m celery -A ecommerce_project beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

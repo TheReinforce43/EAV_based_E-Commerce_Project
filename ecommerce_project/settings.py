@@ -42,7 +42,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 ProjectApp= [
-
+    'user',
 
 ]
 
@@ -58,6 +58,8 @@ DefaultApp=[
 SupportingApp=[
     'rest_framework',
     'rest_framework_simplejwt',
+    'celery',
+    "django_celery_beat",
 
 ]
 
@@ -245,6 +247,8 @@ if not IS_TESTING:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
+
+AUTH_USER_MODEL = 'user.User'
 
 
 
