@@ -9,6 +9,8 @@ from .custom_manager import CustomUserManager
 
 from utils.user_related import user_type
 
+from utils.user_related import validate_bd_phone_number
+
 
 class User(AbstractUser):
     username = None
@@ -16,8 +18,7 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=10, choices=user_type, default='customer')
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     address= models.TextField(blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-
+    phone_number = models.CharField(max_length=20, blank=True, null=True, unique=True, validators=[validate_bd_phone_number])
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['first_name']
 

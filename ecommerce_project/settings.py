@@ -60,6 +60,7 @@ SupportingApp=[
     'rest_framework_simplejwt',
     'celery',
     "django_celery_beat",
+    'rest_framework_simplejwt.token_blacklist',
 
 ]
 
