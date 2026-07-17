@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView , UpdateAPIView, RetrieveDestroyAPIView
 
 
-from ecommerce_project.user.Serializer.user_serializer import (
+from user.Serializer.user_serializer import (
     UserLoginSerializer,
     UserSignUpSerializer,
     LogoutSerializer
@@ -42,4 +42,4 @@ class UserLogoutView(APIView):
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"detail": "Logged out successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)

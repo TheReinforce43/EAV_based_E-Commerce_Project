@@ -85,7 +85,6 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 
-
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
 
@@ -97,5 +96,6 @@ class LogoutSerializer(serializers.Serializer):
         try:
             token = RefreshToken(self.token)
             token.blacklist()
-        except TokenError:
-            raise serializers.ValidationError({"detail": "Invalid or expired token."})
+        except TokenError as e:
+            print("TokenError:", str(e))   # check docker logs
+            raise serializers.ValidationError({"detail": str(e)})  # temporarily show real error

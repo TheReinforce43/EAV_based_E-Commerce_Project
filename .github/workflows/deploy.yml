@@ -174,4 +174,4 @@ jobs:
             # Free disk space
             docker image prune -f
 
-            echo "✅ Deployed successfully"
+            echo " Deployed successfully"
