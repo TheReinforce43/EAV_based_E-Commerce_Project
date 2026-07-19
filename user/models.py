@@ -26,3 +26,9 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    
+    def save(self, *args, **kwargs):
+        if not self.phone_number:
+            self.phone_number = None
+        super().save(*args, **kwargs)
