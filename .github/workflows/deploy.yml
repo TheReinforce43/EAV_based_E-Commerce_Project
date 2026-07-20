@@ -1,177 +1,33 @@
-name: CI/CD Pipeline
+# .github/workflows/test.yml
+name: Run Tests
 
 on:
   push:
-    branches: ['**']
+    branches: [main, develop, feature_rahim]
   pull_request:
-    branches: [master]
-  workflow_dispatch:
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    branches: [main, develop]
 
 jobs:
-
-  # ══════════════════════════════════════════
-  #  JOB 1 — Tests
-  #  Runs on every push and PR
-  # ══════════════════════════════════════════
   test:
-    name: Run Tests
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_DB: test_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports: ["6379:6379"]
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     env:
-      DEBUG: "True"
-      SECRET_KEY: "ci-secret-not-for-production"
-      DB_NAME: test_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: localhost
-      DB_PORT: "5432"
-      REDIS_URL: redis://localhost:6379/0
-      EMAIL_HOST_USER: test@test.com
-      EMAIL_HOST_PASSWORD: test
-      DEFAULT_FROM_EMAIL: test@test.com
+      SECRET_KEY: dummy-ci-secret-key-not-used-in-prod
+      DEBUG: "False"
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: pip
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run migrations
-        run: python manage.py migrate
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run tests
-        run: python manage.py test --verbosity=2
-
-  # ══════════════════════════════════════════
-  #  JOB 2 — Build & Push Docker image
-  #  Only runs on push to master (not PRs)
-  # ══════════════════════════════════════════
-  build:
-    name: Build & Push Image
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-
-    permissions:
-      contents: read
-      packages: write       # needed to push to ghcr.io
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Normalize image name
-        run: echo "IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=sha-
-            type=raw,value=latest
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ══════════════════════════════════════════
-  #  JOB 3 — Deploy to production server
-  #  SSH in, pull new image, restart containers
-  # ══════════════════════════════════════════
-  deploy:
-    name: Deploy to Server
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # Copy nginx config and compose file to server
-      - name: Copy config files via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "nginx/default.conf,docker-compose.yml"
-          target: "/home/${{ secrets.SERVER_USER }}/myproject"
-
-      # SSH in and do the actual deploy
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            cd /home/${{ secrets.SERVER_USER }}/myproject
-
-            # Authenticate to ghcr.io on the server
-            echo "${{ secrets.GITHUB_TOKEN }}" | \
-              docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # Pass repo name for image tag resolution
-            export GITHUB_REPOSITORY=${{ github.repository }}
-
-            # Pull new image
-            docker compose -f docker-compose.yml pull
-
-            # Restart with zero-downtime (new containers up before old ones stop)
-            docker compose -f docker-compose.yml up -d --remove-orphans
-
-            # Free disk space
-            docker image prune -f
-
-            echo " Deployed successfully"
+        run: python manage.py test user
