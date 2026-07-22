@@ -21,7 +21,7 @@ class UserModelTest(TestCase):
     def test_user_email_is_unique(self):
         with self.assertRaises(Exception):
             User.objects.create_user(
-                email="test@example.com",  # duplicate
+                email="tesft@example.com",  # duplicate
                 first_name="Another",
                 password="pass456"
             )
