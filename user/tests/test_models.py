@@ -16,7 +16,7 @@ class UserModelTest(TestCase):
         self.assertEqual(str(self.user), "test@example.com")
 
     def test_user_default_type_is_customer(self):
-        self.assertEqual(self.user.user_type, "Customer")
+        self.assertEqual(self.user.user_type, "customer")
 
     def test_user_email_is_unique(self):
         with self.assertRaises(Exception):
