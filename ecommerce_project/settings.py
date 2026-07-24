@@ -110,7 +110,7 @@ ASGI_APPLICATION = "ecommerce_project.asgi.application"
 # }
 
 
-# Detects 'manage.py test', 'pytest', or explicit TESTING env variable
+
 IS_TESTING = (
     "test" in sys.argv 
     or "pytest" in sys.argv[0] 
