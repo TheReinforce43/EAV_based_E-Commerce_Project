@@ -66,10 +66,10 @@ This project includes a `Dockerfile` and `docker-compose.yml` for containerized 
 
 ## Testing
 
-Run tests with Django's test runner:
+Run tests with pytest framework:
 
 ```bash
-python manage.py test
+pytest -v
 ```
 
 ## Project layout
