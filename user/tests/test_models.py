@@ -23,5 +23,5 @@ class UserModelTest(TestCase):
             User.objects.create_user(
                  email="test@example.com",  # duplicate
                 first_name="Another",
-                password="pass456"
+                password="strongpass123"
             )
