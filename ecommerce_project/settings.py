@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os 
-
+import sys
 
 import environ
 
@@ -110,12 +110,17 @@ ASGI_APPLICATION = "ecommerce_project.asgi.application"
 # }
 
 
-
-import sys
-
-IS_TESTING = "test" in sys.argv
+# Detects 'manage.py test', 'pytest', or explicit TESTING env variable
+IS_TESTING = (
+    "test" in sys.argv 
+    or "pytest" in sys.argv[0] 
+    or "pytest" in sys.modules 
+    or env.bool("TESTING", default=False)
+)
 
 CACHE_TTL = 60 * 15
+
+
 
 if IS_TESTING:
     # Use SQLite for tests
