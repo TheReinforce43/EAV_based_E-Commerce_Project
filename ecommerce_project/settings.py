@@ -43,6 +43,7 @@ ALLOWED_HOSTS = ['*']
 
 ProjectApp= [
     'user',
+    'product',
 
 ]
 
