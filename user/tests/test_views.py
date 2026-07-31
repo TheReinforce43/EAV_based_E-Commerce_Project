@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 pytestmark = pytest.mark.django_db
-from ecommerce_project.user.tests.conftest import _create_user
+# from ecommerce_project.user.tests.conftest import _create_user
 from user.tests.conftest import create_user, auth_client
 
 class TestUserSignUp:
