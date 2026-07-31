@@ -10,6 +10,8 @@ pytestmark = pytest.mark.django_db
 # from ecommerce_project.user.tests.conftest import _create_user
 from user.tests.conftest import create_user, auth_client
 
+from user.models import User  # adjust import path 
+
 class TestUserSignUp:
 
     def test_signup_success(self, api_client: APIClient):
