@@ -16,6 +16,9 @@ from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 
 from product.Model.category_related_model import CategoryModel
+import io 
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
 
@@ -47,3 +50,17 @@ def category(db):
         name="Electronics",
         description="Electronic items",
     )
+
+
+
+
+def generate_test_image(fmt="JPEG"):
+    """Return a real, valid in-memory image file (ImageField validates via Pillow,
+    so raw fake bytes like b"fake-image-bytes" will fail validation silently)."""
+    buffer = io.BytesIO()
+    Image.new("RGB", (10, 10), color="red").save(buffer, format=fmt)
+    buffer.seek(0)
+    return SimpleUploadedFile(
+        f"test_image.{fmt.lower()}", buffer.read(), content_type=f"image/{fmt.lower()}"
+    )
+ 

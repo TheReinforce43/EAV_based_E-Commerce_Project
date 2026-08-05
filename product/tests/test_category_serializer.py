@@ -1,7 +1,10 @@
 import pytest
-from django.core.files.uploadedfile import SimpleUploadedFile
 
+from  product.tests.conftest import generate_test_image 
 from product.Serializer.category_related_serializer import CategorySerializer
+
+import io
+
 
 
 @pytest.mark.django_db
@@ -89,21 +92,21 @@ class TestCategorySerializer:
         # Assert
         assert is_valid, serializer.errors
 
+
     def test_image_upload_is_accepted(self):
         # Arrange
-        image = SimpleUploadedFile(
-            "test_image.jpg", b"fake-image-bytes", content_type="image/jpeg"
-        )
-        payload = {"name": "Photography", "image": image}
+        payload = {"name": "Photography", "image": generate_test_image()}
         serializer = CategorySerializer(data=payload)
-
+ 
         # Act
         is_valid = serializer.is_valid()
-        instance = serializer.save()
-
+ 
         # Assert
         assert is_valid, serializer.errors
+        instance = serializer.save()
         assert bool(instance.image) is True
+
+  
 
     def test_update_preserves_id(self, category):
         # Arrange
